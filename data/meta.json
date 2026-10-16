@@ -1,0 +1,161 @@
+{
+  "ano_referencia": 2026,
+  "competencia_folha": "junho de 2026",
+  "primeiro_ano": 1981,
+  "ultimo_ano": 2024,
+  "titulacoes": 888,
+  "pessoas": 799,
+  "anos_validados_capes": [
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "remuneracao": {
+    "fontes": {
+      "Estadual – Executivo do Pará": {
+        "n": 76,
+        "media": 15552.7,
+        "mediana": 13004.98,
+        "competencia": "07/2026",
+        "publicada": true
+      },
+      "Estadual – TJPA": {
+        "n": 4,
+        "competencia": "12/2025",
+        "publicada": false
+      },
+      "Federal – aposentado (SIAPE)": {
+        "n": 77,
+        "media": 20670.98,
+        "mediana": 21935.71,
+        "competencia": "06/2026",
+        "publicada": true
+      },
+      "Federal – ativo (SIAPE)": {
+        "n": 329,
+        "media": 20025.47,
+        "mediana": 20674.61,
+        "competencia": "06/2026",
+        "publicada": true
+      },
+      "Municipal – Prefeitura de Belém": {
+        "n": 2,
+        "competencia": "08/2026",
+        "publicada": false
+      }
+    },
+    "pessoas_com_remuneracao": 488
+  },
+  "complemento_capes": {
+    "graduacao_escavador": 26,
+    "titulacoes": 49,
+    "pessoas_novas": 37,
+    "pessoas_existentes": 12,
+    "linha_inferida": 46,
+    "localizados": 17,
+    "por_ano": {
+      "2005": 3,
+      "2006": 4,
+      "2008": 2,
+      "2009": 14,
+      "2010": 3,
+      "2011": 1,
+      "2012": 2,
+      "2013": 1,
+      "2016": 1,
+      "2018": 1,
+      "2024": 17
+    }
+  },
+  "anos_incompletos_na_planilha": [
+    2006,
+    2009,
+    2024
+  ],
+  "faltavam_por_ano": {
+    "2004": 0,
+    "2005": 3,
+    "2006": 4,
+    "2007": 0,
+    "2008": 2,
+    "2009": 14,
+    "2010": 3,
+    "2011": 1,
+    "2012": 2,
+    "2013": 1,
+    "2014": 0,
+    "2015": 0,
+    "2016": 1,
+    "2017": 0,
+    "2018": 1,
+    "2019": 0,
+    "2020": 0,
+    "2021": 0,
+    "2022": 0,
+    "2023": 0,
+    "2024": 17
+  },
+  "correcoes_de_ano": [
+    {
+      "EGRESSO": "FERNANDA CARNEIRO ROMAGNOLI",
+      "NIVEL": "Doutorado",
+      "ANO_PLANILHA": 2015,
+      "ANO_CORRIGIDO": 2016,
+      "FONTE": "RI UFPA: 06/05/2016"
+    },
+    {
+      "EGRESSO": "PAULO MOREIRA PINTO",
+      "NIVEL": "Doutorado",
+      "ANO_PLANILHA": 2015,
+      "ANO_CORRIGIDO": 2016,
+      "FONTE": "RI UFPA: 31/03/2016"
+    },
+    {
+      "EGRESSO": "PRISCILA TAMARA MENEZES DIAS",
+      "NIVEL": "Doutorado",
+      "ANO_PLANILHA": 2015,
+      "ANO_CORRIGIDO": 2016,
+      "FONTE": "RI UFPA: 20/06/2016"
+    },
+    {
+      "EGRESSO": "RAIMUNDO ERUNDINO SANTOS DINIZ",
+      "NIVEL": "Doutorado",
+      "ANO_PLANILHA": 2015,
+      "ANO_CORRIGIDO": 2016,
+      "FONTE": "RI UFPA: 28/06/2016"
+    },
+    {
+      "EGRESSO": "SOL ELIZABETH GONZALEZ PEREZ",
+      "NIVEL": "Doutorado",
+      "ANO_PLANILHA": 2015,
+      "ANO_CORRIGIDO": 2016,
+      "FONTE": "RI UFPA: 12/05/2016"
+    },
+    {
+      "EGRESSO": "ALEXANDRA FERREIRA",
+      "NIVEL": "Mestrado",
+      "ANO_PLANILHA": 2013,
+      "ANO_CORRIGIDO": 2014,
+      "FONTE": "CAPES 2014 e RI UFPA: 10/01/2014"
+    }
+  ],
+  "orientadores_unificados": 34
+}
