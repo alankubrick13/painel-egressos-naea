@@ -30,9 +30,10 @@ ui.indicadores([
 # ====================================================================== áreas e cursos
 ui.secao("Formação de origem",
          "Curso de graduação de cada egresso, agrupado nas grandes áreas do conhecimento. Fonte: planilha do "
-         "programa; para quem entrou na base pelos registros da CAPES, o Currículo Lattes consultado no "
-         f"Escavador ({num(p['GRADUACAO_FONTE'].eq('Escavador (Currículo Lattes)').sum())} pessoas) ou a "
-         f"informação da coordenação ({num(p['GRADUACAO_FONTE'].eq('Informado pela coordenação').sum())})."
+         "programa; para quem entrou na base pela CAPES ou pelo site do programa, o Currículo Lattes, consultado "
+         f"no Escavador ({num(p['GRADUACAO_FONTE'].eq('Escavador (Currículo Lattes)').sum())} pessoas) ou na "
+         f"Plataforma Lattes ({num(p['GRADUACAO_FONTE'].eq('Currículo Lattes').sum())}), ou a informação da "
+         f"coordenação ({num(p['GRADUACAO_FONTE'].eq('Informado pela coordenação').sum())})."
          + (f" {num(sem_grad)} pessoas ainda sem graduação conhecida ficam fora desta página." if sem_grad else ""))
 c1, c2 = st.columns(2, gap="medium")
 with c1:

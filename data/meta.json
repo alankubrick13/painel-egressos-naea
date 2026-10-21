@@ -2,9 +2,9 @@
   "ano_referencia": 2026,
   "competencia_folha": "junho de 2026",
   "primeiro_ano": 1981,
-  "ultimo_ano": 2024,
-  "titulacoes": 888,
-  "pessoas": 799,
+  "ultimo_ano": 2025,
+  "titulacoes": 920,
+  "pessoas": 828,
   "anos_validados_capes": [
     2004,
     2005,
@@ -28,12 +28,23 @@
     2023,
     2024
   ],
+  "anos_catalogo_capes": [
+    2025
+  ],
+  "anos_site_programa": [
+    2025
+  ],
+  "titulacoes_por_fonte": {
+    "Planilha do programa": 839,
+    "CAPES (Coleta Sucupira)": 50,
+    "Site do programa": 31
+  },
   "remuneracao": {
     "fontes": {
       "Estadual – Executivo do Pará": {
-        "n": 76,
-        "media": 15552.7,
-        "mediana": 13004.98,
+        "n": 81,
+        "media": 15128.1,
+        "mediana": 12622.7,
         "competencia": "07/2026",
         "publicada": true
       },
@@ -50,8 +61,8 @@
         "publicada": true
       },
       "Federal – ativo (SIAPE)": {
-        "n": 329,
-        "media": 20025.47,
+        "n": 337,
+        "media": 19820.3,
         "mediana": 20674.61,
         "competencia": "06/2026",
         "publicada": true
@@ -62,15 +73,19 @@
         "publicada": false
       }
     },
-    "pessoas_com_remuneracao": 488
+    "pessoas_com_remuneracao": 501
   },
   "complemento_capes": {
-    "graduacao_escavador": 26,
-    "titulacoes": 49,
-    "pessoas_novas": 37,
-    "pessoas_existentes": 12,
+    "graduacao_escavador": 51,
+    "graduacao_lattes": 4,
+    "atuacao_lattes": 6,
+    "titulacoes": 81,
+    "pessoas_novas": 66,
+    "pessoas_existentes": 15,
     "linha_inferida": 46,
-    "localizados": 17,
+    "linha_sucupira": 1,
+    "linha_site": 31,
+    "localizados": 31,
     "por_ano": {
       "2005": 3,
       "2006": 4,
@@ -82,7 +97,8 @@
       "2013": 1,
       "2016": 1,
       "2018": 1,
-      "2024": 17
+      "2024": 17,
+      "2025": 32
     }
   },
   "anos_incompletos_na_planilha": [
@@ -115,47 +131,58 @@
   },
   "correcoes_de_ano": [
     {
-      "EGRESSO": "FERNANDA CARNEIRO ROMAGNOLI",
+      "TRABALHO": "A VIDA FLUTUANTE NA VÁRZEA: readaptação como elemento fundamental para a conservação de recursos aquáticos",
       "NIVEL": "Doutorado",
       "ANO_PLANILHA": 2015,
       "ANO_CORRIGIDO": 2016,
       "FONTE": "RI UFPA: 06/05/2016"
     },
     {
-      "EGRESSO": "PAULO MOREIRA PINTO",
+      "TRABALHO": "POLÍTICAS PÚBLICAS DE TURISMO NA PAN-AMAZÔNIA: processos de gestão local em áreas protegidas na tríplice fronteira do Brasil, Colômbia e Peru",
       "NIVEL": "Doutorado",
       "ANO_PLANILHA": 2015,
       "ANO_CORRIGIDO": 2016,
       "FONTE": "RI UFPA: 31/03/2016"
     },
     {
-      "EGRESSO": "PRISCILA TAMARA MENEZES DIAS",
+      "TRABALHO": "MOVIMENTOS SOCIAIS EM ÁREA DE MINERAÇÃO NA AMAZÔNIA BRASILERA: RESSONÂNCIAS E DISSENSOS NA PROPOSIÇÃO DE UM MODELO DE DESENVOLVIMENTO ALTERNATIVO",
       "NIVEL": "Doutorado",
       "ANO_PLANILHA": 2015,
       "ANO_CORRIGIDO": 2016,
       "FONTE": "RI UFPA: 20/06/2016"
     },
     {
-      "EGRESSO": "RAIMUNDO ERUNDINO SANTOS DINIZ",
+      "TRABALHO": "QUILOMBO DE SÃO PEDRO DOS BOIS: memória biocultural subvertida nas logicas de ocupações recentes do Amapá",
       "NIVEL": "Doutorado",
       "ANO_PLANILHA": 2015,
       "ANO_CORRIGIDO": 2016,
       "FONTE": "RI UFPA: 28/06/2016"
     },
     {
-      "EGRESSO": "SOL ELIZABETH GONZALEZ PEREZ",
+      "TRABALHO": "EXPLORAÇÃO DE RECURSOS FLORESTAIS NÃO MADEIREIROS PELOS MẼBÊNGÔKRE-KAYAPÓ DA ALDEIA LAS CASAS - TERRA INDÍGENA LAS CASAS, NO SUDESTE DO PARÁ: Aspectos biológicos, sociais e econômicos relevantes para a sustentabilidade da comercialização.",
       "NIVEL": "Doutorado",
       "ANO_PLANILHA": 2015,
       "ANO_CORRIGIDO": 2016,
       "FONTE": "RI UFPA: 12/05/2016"
     },
     {
-      "EGRESSO": "ALEXANDRA FERREIRA",
+      "TRABALHO": "Autoavaliação institucional: a realidade da CPA na prática do SINAES",
       "NIVEL": "Mestrado",
       "ANO_PLANILHA": 2013,
       "ANO_CORRIGIDO": 2014,
       "FONTE": "CAPES 2014 e RI UFPA: 10/01/2014"
     }
   ],
-  "orientadores_unificados": 34
+  "orientadores_unificados": 42,
+  "docencia_ppg": {
+    "ano": 2024,
+    "pessoas": 157,
+    "vinculos": 216,
+    "por_metodo": {
+      "Nome; maior título registrado é o obtido no PPGDSTU": 62,
+      "Nome exato e único no país; maior título posterior ao mestrado no PPGDSTU": 51,
+      "ID da pessoa na CAPES": 40,
+      "Nome exato e único no país; mesma instituição em que atua": 4
+    }
+  }
 }

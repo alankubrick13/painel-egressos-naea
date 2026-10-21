@@ -20,7 +20,8 @@ n_m, n_d = int((t["NIVEL"] == "Mestrado").sum()), int((t["NIVEL"] == "Doutorado"
 comp = meta.get("complemento_capes", {})
 n_capes = int((t["FONTE_REGISTRO"] != "Planilha do programa").sum())
 FONTE_TIT = ("Fonte: quadro geral de egressos do PPGDSTU, complementado com os titulados registrados pela CAPES "
-             "(Coleta Sucupira) e conferido com o Repositório Institucional da UFPA.")
+             "(Coleta Sucupira e Catálogo de Teses e Dissertações) e, para 2025, com a lista do site do programa; "
+             "conferido com o Repositório Institucional da UFPA.")
 com_lattes = p[p["OCUPACAO_LATTES"].notna()]       # quem tem ocupação compilada do Lattes
 
 # ====================================================================== número principal
@@ -77,9 +78,18 @@ ui.grafico(fig, titulo, "Titulações por ano de defesa e nível", FONTE_TIT,
            tabela.reset_index().rename(columns={"ANO": "Ano"}), chave="anual")
 
 if n_capes:
+    tc = t[t["FONTE_REGISTRO"] != "Planilha do programa"]
+    anos_c = [str(a) for a in tc["ANO"].value_counts().head(3).sort_index().index]
+    anos_c = ", ".join(anos_c[:-1]) + " e " + anos_c[-1] if len(anos_c) > 1 else anos_c[0]
+    do_site = tc["FONTE_REGISTRO"].eq("Site do programa").any()
+    fontes = ("dos registros de titulados da CAPES e, para as defesas mais recentes, da lista publicada no site do "
+              "programa" if do_site else "dos registros de titulados da CAPES")
+    origem = ("veio da Plataforma Sucupira ou é a do(a) orientador(a)"
+              if tc["LINHA_ORIGEM"].isin(["Informada na Sucupira", "Linha do orientador (site do programa)"]).any()
+              else "foi atribuída pelo orientador")
     ui.ressalva(f"{num(n_capes)} das {num(len(t))} titulações do recorte não constavam na planilha do programa e foram "
-                "incluídas a partir dos registros de titulados da CAPES, concentradas em 2006, 2009 e 2024. "
-                "Para elas, a linha de pesquisa foi atribuída pelo orientador. A lista está na página Metodologia.")
+                f"incluídas a partir {fontes}, concentradas em {anos_c}. "
+                f"Para elas, a linha de pesquisa {origem}. A lista está na página Metodologia.")
     st.html('<div style="height:6px"></div>')
 
 c1, c2 = st.columns(2, gap="medium")

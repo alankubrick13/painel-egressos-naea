@@ -115,9 +115,11 @@ def rodape(meta):
     Programa de Pós-Graduação em Desenvolvimento Sustentável do Trópico Úmido (PPGDSTU)
   </div>
   <div>
-    <b>Fontes</b>: quadro geral de egressos da coordenação do PPGDSTU; Currículo Lattes;
+    <b>Fontes</b>: quadro geral de egressos da coordenação do PPGDSTU e lista de teses e dissertações do site
+    do programa; Currículo Lattes (via Escavador);
     Portal da Transparência (SIAPE, competência {meta['competencia_folha']}); folhas públicas do
-    Pará; CAPES – Dados Abertos (discentes, Coleta Sucupira); Repositório Institucional da UFPA.
+    Pará; CAPES – Dados Abertos (discentes, Coleta Sucupira) e Catálogo de Teses e Dissertações;
+    Repositório Institucional da UFPA.
     Detalhes na página <i>Metodologia</i>.
   </div>
 </div>

@@ -13,14 +13,25 @@ comp = meta.get("complemento_capes", {})
 inc = [str(a) for a in meta.get("anos_incompletos_na_planilha", [])]
 anos_inc = ", ".join(inc[:-1]) + " e " + inc[-1] if len(inc) > 1 else "".join(inc)
 n_plan = int((tit["FONTE_REGISTRO"] == "Planilha do programa").sum())
+av = meta.get("anos_validados_capes", [])
+anos_val = f"{av[0]} a {av[-1]}" if av else "–"
+rec = sorted({str(a) for a in meta.get("anos_catalogo_capes", []) + meta.get("anos_site_programa", [])})
+anos_rec = ", ".join(rec[:-1]) + " e " + rec[-1] if len(rec) > 1 else "".join(rec)
+n_site = meta.get("titulacoes_por_fonte", {}).get("Site do programa", 0)
+txt_catalogo = (f"""<p><b>Defesas recentes.</b> Os dados abertos da CAPES saem com cerca de um ano de atraso e ainda
+não trazem {anos_rec}. Essas defesas vieram da lista de teses e dissertações publicada no site do PPGDSTU
+({num(n_site)} trabalhos) e do Catálogo de Teses e Dissertações da CAPES, que, com a página do trabalho na
+Plataforma Sucupira, informa a data de defesa e a linha de pesquisa. Quando a linha não vem da Sucupira, vale a
+linha atual do(a) orientador(a) segundo o site do programa. A conferência com a CAPES será refeita quando os dados
+abertos de {anos_rec} forem publicados.</p>""" if rec else "")
 
 ui.secao("Como os números foram construídos")
 st.html(f"""<div class="prosa">
 <p><b>Base de titulações.</b> O ponto de partida é o quadro geral de egressos mantido pela coordenação do
 PPGDSTU: uma linha por dissertação ou tese, com orientador(a), linha de pesquisa, curso de graduação e um
 resumo do Currículo Lattes ({num(n_plan)} titulações após a limpeza). A ela foram somadas
-<b>{num(comp.get('titulacoes', 0))} titulações</b> que a CAPES registra como do programa e que não estavam na
-planilha. O painel reúne <b>{num(meta['titulacoes'])} titulações</b> de <b>{num(meta['pessoas'])} pessoas</b>,
+<b>{num(comp.get('titulacoes', 0))} titulações</b> que a CAPES{' ou o site do programa' if n_site else ''}
+registra{'m' if n_site else ''} como do programa e que não estavam na planilha. O painel reúne <b>{num(meta['titulacoes'])} titulações</b> de <b>{num(meta['pessoas'])} pessoas</b>,
 defendidas entre {meta['primeiro_ano']} e {meta['ultimo_ano']}.</p>
 <p><b>Destino profissional.</b> A ocupação declarada no Lattes foi complementada por cruzamentos nominais
 com fontes oficiais, em rodadas sucessivas: folha federal (SIAPE, Portal da Transparência, competência
@@ -28,9 +39,9 @@ com fontes oficiais, em rodadas sucessivas: folha federal (SIAPE, Portal da Tran
 de Contas do Pará, Prefeitura de Belém, e os registros de docentes e discentes da CAPES. Nomes
 homônimos foram descartados ou marcados para conferência.</p>
 <p><b>Conferência externa.</b> As datas de defesa foram comparadas com os titulados do programa registrados
-pela CAPES (Coleta Sucupira, 2004 a 2024) e com o Repositório Institucional da UFPA. A conferência corrigiu o
+pela CAPES (Coleta Sucupira, {anos_val}) e com o Repositório Institucional da UFPA. A conferência corrigiu o
 ano de {len(meta.get('correcoes_de_ano', []))} trabalhos e mostrou que a planilha estava incompleta,
-sobretudo em {anos_inc}. As titulações que faltavam foram incorporadas (lista abaixo).</p>
+sobretudo em {anos_inc}. As titulações que faltavam foram incorporadas (lista abaixo).</p>{txt_catalogo}
 </div>""")
 
 # ---------------------------------------------------------------- planilha x CAPES
@@ -64,26 +75,36 @@ if len(corr):
                 f'<div class="card-sub">{len(corr)} datas corrigidas. Quatro teses estavam lançadas duas vezes '
                 '(2015 e 2016) e foram defendidas em 2016, segundo o Repositório Institucional da UFPA e a '
                 'CAPES; as demais divergiam das duas fontes.</div>')
-        st.dataframe(corr.rename(columns={"EGRESSO": "Egresso", "NIVEL": "Nível", "ANO_PLANILHA": "Ano na planilha",
-                                          "ANO_CORRIGIDO": "Ano adotado", "FONTE": "Fonte"}),
+        st.dataframe(corr.drop(columns=["EGRESSO"], errors="ignore").rename(columns={
+                         "TRABALHO": "Trabalho", "NIVEL": "Nível", "ANO_PLANILHA": "Ano na planilha",
+                         "ANO_CORRIGIDO": "Ano adotado", "FONTE": "Fonte"}),
                      hide_index=True, use_container_width=True)
 
 inc_df = data.capes_incorporadas()
 if len(inc_df):
     with st.container(border=True, key="card-incorporadas"):
-        st.html('<div class="card-titulo">Titulações incorporadas a partir da CAPES</div>'
+        st.html('<div class="card-titulo">Titulações incorporadas a partir da CAPES'
+                f'{" e do site do programa" if n_site else ""}</div>'
                 f'<div class="card-sub">{num(len(inc_df))} trabalhos que não estavam na planilha do programa. '
                 f'{num(comp.get("pessoas_existentes", 0))} são de pessoas que já estavam na base (por exemplo, o '
                 f'doutorado de quem tinha só o mestrado registrado); {num(comp.get("pessoas_novas", 0))} pessoas '
                 f'entraram na base, das quais {num(comp.get("localizados", 0))} foram localizadas em fontes '
-                'oficiais. A coordenação pode usar esta lista para atualizar a planilha.</div>')
-        st.dataframe(inc_df.assign(LINHA_ORIGEM=inc_df["LINHA_ORIGEM"].replace(
-                         {"Inferida pelo orientador": "Atribuída pelo orientador"})).rename(columns={
+                'oficiais. A lista com os nomes, para atualizar a planilha, está na base consolidada da '
+                'coordenação.</div>')
+        st.dataframe(inc_df.drop(columns=["NOME"], errors="ignore").assign(LINHA_ORIGEM=inc_df["LINHA_ORIGEM"].replace(
+                         {"Inferida pelo orientador": "Atribuída pelo orientador",
+                          "Linha do orientador (site do programa)": "Linha do(a) orientador(a) no site"}),
+                                   FONTE=inc_df.get("FONTE", pd.Series(index=inc_df.index, dtype=str)).replace(
+                         {"CAPES (Coleta Sucupira)": "CAPES"})).rename(columns={
                          "NOME": "Nome", "NIVEL": "Nível", "ANO": "Ano", "TITULO": "Título", "ORIENTADOR": "Orientador(a)",
-                         "LINHA": "Linha", "LINHA_ORIGEM": "Origem da linha", "PESSOA": "Pessoa"}),
+                         "LINHA": "Linha", "LINHA_ORIGEM": "Origem da linha", "PESSOA": "Pessoa", "FONTE": "Fonte"}),
                      hide_index=True, use_container_width=True, height=340)
         st.html('<div class="card-fonte">Fonte: CAPES – Dados Abertos, discentes da pós-graduação (situação '
-                '“titulado”). Os registros da CAPES não informam linha de pesquisa nem graduação.</div>')
+                f'“titulado”, {anos_val})'
+                + (f'; defesas de {anos_rec}: site do PPGDSTU, Catálogo de Teses e Dissertações e Plataforma '
+                   'Sucupira' if rec else '')
+                + '. Os dados abertos não informam linha de pesquisa; nenhuma dessas fontes informa a '
+                'graduação.</div>')
 
 # ---------------------------------------------------------------- localização
 ui.secao("Localização profissional")
@@ -141,14 +162,24 @@ ui.secao("Decisões e limitações")
 st.html(f"""<div class="prosa"><ul>
 <li><b>Linhas de pesquisa.</b> “Desenvolvimento Regional e Agrário” é o nome antigo de “Desenvolvimento
 Econômico, Regional e Agrário”; as duas aparecem somadas. O rótulo original continua na base.</li>
-<li><b>Titulações vindas da CAPES.</b> Os registros da CAPES não trazem linha de pesquisa. Nesses
-{num(comp.get('titulacoes', 0))} trabalhos, a linha é a predominante do orientador quando ele tem ao menos três
-orientações na planilha e 80% delas numa mesma linha ({num(comp.get('linha_inferida', 0))} casos); nos demais, fica
-“não informada”. A graduação das pessoas novas foi buscada no Currículo Lattes reproduzido pelo Escavador
-({num(comp.get('graduacao_escavador', 0))} encontradas), aceitando um perfil só quando ele lista o mestrado ou o
-doutorado obtido no PPGDSTU; a das demais ({num(pes['GRADUACAO_FONTE'].eq('Informado pela coordenação').sum())}) foi
-informada pela coordenação. A ocupação declarada no Lattes dessas pessoas, em geral, não foi compilada; elas ficam
-fora das medidas que dependem dela.</li>
+<li><b>Titulações fora da planilha.</b> Os dados abertos da CAPES e o site do programa não trazem linha de
+pesquisa. Nesses {num(comp.get('titulacoes', 0))} trabalhos, a linha vem da Plataforma Sucupira
+({num(comp.get('linha_sucupira', 0))}), é a do(a) orientador(a) segundo o site do programa, para as defesas
+recentes ({num(comp.get('linha_site', 0))}), ou é a predominante do orientador quando ele tem ao menos três
+orientações na planilha e 80% delas numa mesma linha ({num(comp.get('linha_inferida', 0))}); nos demais, fica
+“não informada”. A graduação das pessoas novas veio do Currículo Lattes, consultado no Escavador
+({num(comp.get('graduacao_escavador', 0))}) ou na Plataforma Lattes ({num(comp.get('graduacao_lattes', 0))}),
+aceito só quando o currículo é comprovadamente da pessoa (lista o título obtido no PPGDSTU ou o mesmo tema e
+vínculo); a das demais ({num(pes['GRADUACAO_FONTE'].eq('Informado pela coordenação').sum())}) foi informada pela
+coordenação. A ocupação declarada no Lattes foi compilada só para {num(comp.get('atuacao_lattes', 0))} dessas
+pessoas, que não estavam em nenhuma fonte oficial; as demais ficam fora das medidas que dependem dela.</li>
+<li><b>Docência na pós-graduação.</b> Os docentes de programas de pós-graduação vêm dos dados abertos da CAPES
+({meta.get('docencia_ppg', {}).get('ano')}). Quem se titulou no PPGDSTU a partir de 2004 é ligado pelo código da
+pessoa na CAPES, o mesmo nos registros de discente e de docente
+({num(meta.get('docencia_ppg', {}).get('por_metodo', {}).get('ID da pessoa na CAPES', 0))} pessoas). Os demais
+são ligados pelo nome, e só quando o registro confirma: o maior título do docente é o obtido no PPGDSTU (mesmo
+nível, UFPA, ano igual ou vizinho), ou o nome é exato e único entre os docentes do país e o título é posterior ou
+o programa é da instituição onde a pessoa já atua. Homônimos e grafias apenas parecidas ficam de fora.</li>
 <li><b>Orientadores.</b> Grafias diferentes do mesmo nome foram unificadas
 ({meta.get('orientadores_unificados', 0)} variantes a menos). Em um caso de coorientação, conta a orientadora principal.</li>
 <li><b>Pessoas.</b> Quem fez mestrado e doutorado no programa conta uma vez nas análises de destino, pela

@@ -144,6 +144,104 @@ with c8:
                    "Só servidores federais localizados com alta confiança; outras esferas não informam função.",
                    pd.DataFrame({"Função": ge.index, "Pessoas": ge.values}), chave="gestao")
 
+# ====================================================================== docência na pós-graduação
+CODIGO_PPGDSTU = "15001016002P5"
+MINUSC = {"da", "de", "do", "das", "dos", "e", "em", "na", "no", "nas", "nos", "a", "o", "para", "com"}
+
+
+def nome_programa(s):
+    """'DESENVOLVIMENTO SUSTENTÁVEL DO TRÓPICO ÚMIDO - PPGDSTU' -> 'Desenvolvimento Sustentável do Trópico Úmido – PPGDSTU'."""
+    base, *sigla = str(s).split(" - ")
+    base = " ".join(w if w in MINUSC else w.capitalize() for w in base.lower().split())
+    return " – ".join([base[:1].upper() + base[1:]] + [x.strip() for x in sigla])
+
+
+def tipo_programa(r):
+    if r["NM_MODALIDADE_PROGRAMA"] == "PROFISSIONAL":
+        return "Profissional"
+    return "Acadêmico, com doutorado" if "DOUTORADO" in r["NM_GRAU_PROGRAMA"] else "Acadêmico, só mestrado"
+
+
+doc = data.docencia_ppg()
+ano_doc = data.meta().get("docencia_ppg", {}).get("ano")
+if len(doc):
+    dc = doc[doc["ID_PESSOA"].isin(p["ID_PESSOA"])]
+    ui.secao("Docência na pós-graduação",
+             f"Egressos que eram docentes de programas de pós-graduação stricto sensu em {ano_doc}, ano mais recente "
+             "publicado pela CAPES (dados abertos de docentes, Coleta Sucupira). A ligação usa o código da pessoa na "
+             "CAPES ou o nome conferido com o título obtido; detalhes na página Metodologia.")
+    if dc.empty:
+        st.caption("Nenhum docente de pós-graduação no recorte escolhido.")
+    else:
+        pdoc = dc.drop_duplicates("ID_PESSOA")
+        dout = p[p["NIVEL_MAIS_ALTO"] == "Doutorado"]
+        dout_doc = int(dout["DOCENTE_PPG"].eq("Sim").sum())
+        perm = int(dc.groupby("ID_PESSOA")["DS_CATEGORIA_DOCENTE"].agg(lambda s: s.eq("PERMANENTE").any()).sum())
+        no_prog = dc.loc[dc["CD_PROGRAMA_IES"] == CODIGO_PPGDSTU, "ID_PESSOA"].nunique()
+        ui.indicadores([
+            ("Docentes de pós-graduação", num(len(pdoc)), f"{pct(len(pdoc) / len(p), 0)} dos egressos do recorte"),
+            ("Entre quem se doutorou aqui", pct(dout_doc / max(len(dout), 1), 0),
+             f"{num(dout_doc)} de {num(len(dout))} doutores"),
+            ("Permanentes em algum programa", pct(perm / len(pdoc), 0), "os demais são colaboradores ou visitantes"),
+            ("Programas diferentes", num(dc["CD_PROGRAMA_IES"].nunique()),
+             f"em {num(dc['SG_ENTIDADE_ENSINO'].nunique())} instituições"),
+            ("No próprio PPGDSTU", num(no_prog), "docentes do programa em que se titularam"),
+        ])
+        st.html('<div style="height:12px"></div>')
+        fonte_doc = (f"Fonte: CAPES – Dados Abertos, docentes da pós-graduação ({ano_doc}). Quem é docente em mais "
+                     "de um programa conta uma vez em cada categoria.")
+        c11, c12 = st.columns(2, gap="medium")
+        with c11:
+            ies = dc.drop_duplicates(["ID_PESSOA", "SG_ENTIDADE_ENSINO"])["SG_ENTIDADE_ENSINO"].value_counts()
+            top = ies.head(12)
+            fig = charts.barras_h(top.index, top.values, total=len(pdoc), largura_rotulo=14)
+            ui.grafico(fig, f"{pct(ies.iloc[0] / len(pdoc), 0)} dão aula em programas da {ies.index[0]}",
+                       "Egressos docentes por instituição do programa (as 12 com mais egressos)", fonte_doc,
+                       pd.DataFrame({"Instituição": ies.index, "Egressos docentes": ies.values}), chave="ppg-ies")
+        with c12:
+            ar = dc.drop_duplicates(["ID_PESSOA", "NM_AREA_AVALIACAO"])["NM_AREA_AVALIACAO"].str.capitalize()
+            ar = ar.value_counts()
+            top = ar.head(12)
+            fig = charts.barras_h(top.index, top.values, total=len(pdoc), largura_rotulo=30)
+            ui.grafico(fig, f"{top.index[0]} é a área com mais egressos docentes ({num(top.iloc[0])})",
+                       "Egressos docentes por área de avaliação do programa (as 12 maiores)", fonte_doc,
+                       pd.DataFrame({"Área de avaliação": ar.index, "Egressos docentes": ar.values}), chave="ppg-area")
+        c13, c14 = st.columns(2, gap="medium")
+        with c13:
+            uf = dc.drop_duplicates(["ID_PESSOA", "SG_UF_PROGRAMA"])["SG_UF_PROGRAMA"].value_counts()
+            top = uf.head(10)
+            fig = charts.barras_h(top.index, top.values, total=len(pdoc), largura_rotulo=8, destaque="PA")
+            ui.grafico(fig, f"{pct(uf.get('PA', 0) / len(pdoc), 0)} atuam em programas do Pará",
+                       "Egressos docentes por UF do programa (as 10 maiores)", fonte_doc,
+                       pd.DataFrame({"UF": uf.index, "Egressos docentes": uf.values}), chave="ppg-uf")
+        with c14:
+            tp = dc.assign(TIPO=dc.apply(tipo_programa, axis=1)).drop_duplicates(["ID_PESSOA", "TIPO"])["TIPO"]
+            tp = tp.value_counts().reindex(["Acadêmico, com doutorado", "Acadêmico, só mestrado", "Profissional"]).dropna()
+            fig = charts.barras_h(tp.index, tp.values.astype(int), total=len(pdoc), largura_rotulo=24)
+            ui.grafico(fig, f"{num(tp.get('Acadêmico, com doutorado', 0))} egressos formam doutores em programas "
+                            "acadêmicos",
+                       "Egressos docentes por tipo de programa", fonte_doc,
+                       pd.DataFrame({"Tipo de programa": tp.index, "Egressos docentes": tp.values.astype(int)}),
+                       chave="ppg-tipo")
+        with st.container(border=True, key="card-docentes-ppg"):
+            st.html('<div class="card-titulo">Em que programas os egressos dão aula</div>'
+                    f'<div class="card-sub">{num(dc["CD_PROGRAMA_IES"].nunique())} programas com egressos no corpo '
+                    'docente, do que tem mais egressos para o que tem menos.</div>')
+            lista = (dc.assign(Tipo=dc.apply(tipo_programa, axis=1),
+                               Perm=dc["DS_CATEGORIA_DOCENTE"].eq("PERMANENTE"))
+                     .groupby(["CD_PROGRAMA_IES", "NM_PROGRAMA_IES", "SG_ENTIDADE_ENSINO", "SG_UF_PROGRAMA",
+                               "NM_AREA_AVALIACAO", "Tipo"])
+                     .agg(Egressos=("ID_PESSOA", "nunique"), Permanentes=("Perm", "sum")).reset_index()
+                     .assign(Programa=lambda d: d["NM_PROGRAMA_IES"].map(nome_programa),
+                             Area=lambda d: d["NM_AREA_AVALIACAO"].str.capitalize())
+                     .sort_values(["Egressos", "Programa"], ascending=[False, True])
+                     [["Programa", "SG_ENTIDADE_ENSINO", "SG_UF_PROGRAMA", "Area", "Tipo", "Egressos", "Permanentes"]]
+                     .rename(columns={"SG_ENTIDADE_ENSINO": "Instituição", "SG_UF_PROGRAMA": "UF",
+                                      "Area": "Área de avaliação", "Tipo": "Tipo de programa",
+                                      "Egressos": "Egressos docentes", "Permanentes": "Dos quais permanentes"}))
+            st.dataframe(lista, hide_index=True, use_container_width=True, height=380)
+            st.html(f'<div class="card-fonte">{fonte_doc}</div>')
+
 # ====================================================================== ingresso
 ui.secao("Entrada no serviço público",
          "Compara o ano de ingresso no serviço público federal com o ano da última titulação no PPGDSTU.")

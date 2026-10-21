@@ -36,6 +36,13 @@ def capes_incorporadas() -> pd.DataFrame:
 
 
 @st.cache_data(show_spinner=False)
+def docencia_ppg() -> pd.DataFrame:
+    """Egresso x programa de pós-graduação em que é docente (CAPES, ano mais recente publicado)."""
+    arq = DADOS / "docencia_ppg.parquet"
+    return pd.read_parquet(arq) if arq.exists() else pd.DataFrame(columns=["ID_PESSOA"])
+
+
+@st.cache_data(show_spinner=False)
 def meta() -> dict:
     return json.loads((DADOS / "meta.json").read_text(encoding="utf-8"))
 
