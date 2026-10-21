@@ -223,20 +223,36 @@ if len(doc):
                        "Egressos docentes por tipo de programa", fonte_doc,
                        pd.DataFrame({"Tipo de programa": tp.index, "Egressos docentes": tp.values.astype(int)}),
                        chave="ppg-tipo")
+        ORDEM_CONCEITO = ["7", "6", "5", "4", "3", "2", "A"]
+        ROT_CONCEITO = {c: f"Conceito {c}" for c in ORDEM_CONCEITO} | {"A": "A (programa novo, ainda sem nota)"}
+        co = (dc.drop_duplicates(["ID_PESSOA", "CD_CONCEITO_PROGRAMA"])["CD_CONCEITO_PROGRAMA"].value_counts()
+              .reindex(ORDEM_CONCEITO).dropna().astype(int))
+        excel = int(dc.loc[dc["CD_CONCEITO_PROGRAMA"].isin(["6", "7"]), "ID_PESSOA"].nunique())
+        cinco = int(dc.loc[dc["CD_CONCEITO_PROGRAMA"].isin(["5", "6", "7"]), "ID_PESSOA"].nunique())
+        rotulos_co = [ROT_CONCEITO[c] for c in co.index]
+        fig = charts.barras_h(rotulos_co, co.values, total=len(pdoc), largura_rotulo=26)
+        ui.grafico(fig, f"{num(cinco)} egressos ({pct(cinco / len(pdoc), 0)}) dão aula em programas com conceito "
+                        f"5 ou mais; {num(excel)} em programas de excelência (6 ou 7)",
+                   "Egressos docentes pelo conceito CAPES do programa (escala de 1 a 7)",
+                   fonte_doc + " Conceito registrado pela CAPES no ano; 6 e 7 indicam padrão internacional.",
+                   pd.DataFrame({"Conceito": rotulos_co, "Egressos docentes": co.values}), chave="ppg-conceito")
         with st.container(border=True, key="card-docentes-ppg"):
             st.html('<div class="card-titulo">Em que programas os egressos dão aula</div>'
                     f'<div class="card-sub">{num(dc["CD_PROGRAMA_IES"].nunique())} programas com egressos no corpo '
-                    'docente, do que tem mais egressos para o que tem menos.</div>')
+                    'docente, do que tem mais egressos para o que tem menos. Clique no cabeçalho de uma coluna '
+                    'para ordenar, por exemplo, por instituição ou conceito.</div>')
             lista = (dc.assign(Tipo=dc.apply(tipo_programa, axis=1),
                                Perm=dc["DS_CATEGORIA_DOCENTE"].eq("PERMANENTE"))
                      .groupby(["CD_PROGRAMA_IES", "NM_PROGRAMA_IES", "SG_ENTIDADE_ENSINO", "SG_UF_PROGRAMA",
-                               "NM_AREA_AVALIACAO", "Tipo"])
+                               "NM_AREA_AVALIACAO", "Tipo", "CD_CONCEITO_PROGRAMA"])
                      .agg(Egressos=("ID_PESSOA", "nunique"), Permanentes=("Perm", "sum")).reset_index()
                      .assign(Programa=lambda d: d["NM_PROGRAMA_IES"].map(nome_programa),
                              Area=lambda d: d["NM_AREA_AVALIACAO"].str.capitalize())
                      .sort_values(["Egressos", "Programa"], ascending=[False, True])
-                     [["Programa", "SG_ENTIDADE_ENSINO", "SG_UF_PROGRAMA", "Area", "Tipo", "Egressos", "Permanentes"]]
+                     [["Programa", "SG_ENTIDADE_ENSINO", "SG_UF_PROGRAMA", "CD_CONCEITO_PROGRAMA", "Area", "Tipo",
+                       "Egressos", "Permanentes"]]
                      .rename(columns={"SG_ENTIDADE_ENSINO": "Instituição", "SG_UF_PROGRAMA": "UF",
+                                      "CD_CONCEITO_PROGRAMA": "Conceito CAPES",
                                       "Area": "Área de avaliação", "Tipo": "Tipo de programa",
                                       "Egressos": "Egressos docentes", "Permanentes": "Dos quais permanentes"}))
             st.dataframe(lista, hide_index=True, use_container_width=True, height=380)
